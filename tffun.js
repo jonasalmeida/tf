@@ -1,6 +1,6 @@
 
 if(typeof(tf)=="undefined"){
-    s = document.createElement('script')
+    let s = document.createElement('script')
     s.src='https://cdn.jsdelivr.net/npm/@tensorflow/tfjs'
     s.onload=function(){
         console.log('tfjs loaded: ',tf)
@@ -12,7 +12,8 @@ if(typeof(tf)=="undefined"){
 }
 
 tffun=()=>{
-    console.log(Date())
+    console.log('initializing @ '+Date())
+    tffun.plot()
 }
 
 tffun.trainAnn=(x,y)=>{
@@ -44,15 +45,57 @@ tffun.fun1=()=>{
     result.print() // Output: 24
 }
 
-tffun.fun2=()=>{
-    var n = 100
+tffun.genXY=(n,k)=>{
+    var n=n||100, k=k||0.3
     var rg = Array.from(Array(n),(_,i)=>i)
     var x = rg.map(ri=>2*Math.PI*ri/n)
-    var y = x.map(xi=>(Math.sin(xi)+0.1*Math.random()))
+    var y = x.map(xi=>(Math.sin(xi)+k*Math.random()))
 
-    var dt = rg.map(i=>({x:x[i],y:y[i]}))
-    return JSON.stringify(dt,null,3)
-    
+    //var dt = rg.map(i=>({x:x[i],y:y[i]}))
+    //return JSON.stringify(dt,null,3)
+    return {x:x,y:y}
 }
 
-tffun.fun2()
+tffun.plot=(id,x,y,model)=>{
+    // prepare inputs
+    if(Array.isArray(id)){ // if no plot div targetted
+        x=id;y=x;model=y
+    }
+    //if(!x&&!y){throw('no data provided')}
+    if(!x&&!y){
+        let dt = tffun.genXY(200,1)
+        x=dt.x; y=dt.y
+    }
+
+    // assemble data traces
+    traces = [{
+        x:x,
+        y:y,
+        mode: 'markers',
+        type: 'scatter'
+    }]
+
+    // assemble predictions if available
+    // ...
+
+    // find target div, or create one
+    if(typeof(id)=='undefined'){
+        var div = document.createElement('div')
+        div.id="plotlyDiv"
+        document.body.appendChild(div)
+        //debugger
+    }
+
+    // check for plotly 
+    if(typeof(Plotly)=='undefined'){
+        let s = document.createElement('script')
+        s.src="https://cdn.plot.ly/plotly-latest.min.js"
+        s.onload=()=>{
+            Plotly.plot(div,traces)
+            //debugger
+        }
+        document.head.appendChild(s)
+        //debugger
+    }
+
+}

@@ -45,6 +45,7 @@ tffun.fun1=()=>{
     result.print() // Output: 24
 }
 
+//for model fit
 tffun.genXY=(n,k)=>{
     var n=n||100, k=k||0.3
     var rg = Array.from(Array(n),(_,i)=>i)
@@ -54,6 +55,14 @@ tffun.genXY=(n,k)=>{
     //var dt = rg.map(i=>({x:x[i],y:y[i]}))
     //return JSON.stringify(dt,null,3)
     return {x:x,y:y}
+}
+
+// for prediction of unknown Ys from generated Xs
+tffun.genX=(n,k)=>{
+    var n=n||50, k=k||0.4
+    var rg = Array.from(Array(n),(_,i)=>i)
+    var x = rg.map(ri=>2*Math.PI*ri/n)
+    return {x:x}   
 }
 
 tffun.plot=(id,x,y,model)=>{
@@ -67,14 +76,47 @@ tffun.plot=(id,x,y,model)=>{
         x=dt.x; y=dt.y
     }
 
-    // assemble data traces
-    traces = [{
+    console.log("x: ",x)
+    console.log("y: ",y)
+// assemble data traces
+   
+
+    // Define a model for linear regression.
+  const nnmodel = tf.sequential();
+  nnmodel.add(tf.layers.dense({units: 1, inputShape: [1]}));
+
+  // Prepare the model for training: Specify the loss and the optimizer.
+  nnmodel.compile({loss: 'meanSquaredError', optimizer: 'sgd'});
+
+  // Generate some synthetic data for training.
+  const xs = tf.tensor2d(x, [200, 1]);
+  const ys = tf.tensor2d(y, [200, 1]);
+  let testX = tffun.genXY(50,1).x // generate 50 random X values for prediction
+
+  // Train the model using the data.
+  nnmodel.fit(xs, ys).then(() => {
+    // Use the model to do inference on a data point the model hasn't seen before:
+    
+    const testxs = tf.tensor2d(testX, [50, 1]);
+    const testY = nnmodel.predict(testxs, [50, 1]);
+    //testY.print(); // tensor
+    const normalizedYs = testY.dataSync();
+  
+    console.log("testX: ",testX)
+    console.log("testY: ",normalizedYs)
+// a
+ traces = [{
         x:x,
         y:y,
         mode: 'markers',
         type: 'scatter'
+    }, {
+        x:testX,
+        y:normalizedYs,
+        mode: 'lines'
     }]
 
+    console.log(traces);
     // assemble predictions if available
     // ...
 
@@ -90,12 +132,17 @@ tffun.plot=(id,x,y,model)=>{
     if(typeof(Plotly)=='undefined'){
         let s = document.createElement('script')
         s.src="https://cdn.plot.ly/plotly-latest.min.js"
+        var layout = {
+            title:'Line and Scatter Plot'
+        };
         s.onload=()=>{
-            Plotly.plot(div,traces)
+            Plotly.plot(div,traces,layout) //,trace2
             //debugger
         }
         document.head.appendChild(s)
         //debugger
     }
+  });
+
 
 }

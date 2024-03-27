@@ -4,9 +4,9 @@ console.log(`TFjs training started at ${Date()}`);
 
 
 
-
+// tf.js was script tag loaded by the hosting HTML page
 let trainedModel = (async function(){
-    const TFjs = await import('https://esm.sh/tensorflow@0.7.0')
+    // const TFjs = await import('https://esm.sh/tensorflow@0.7.0')
     // 1. Create a simple model.
     const model = tf.sequential();
     model.add(tf.layers.dense({units: 1, inputShape: [1]}));

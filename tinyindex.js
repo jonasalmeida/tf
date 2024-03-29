@@ -4,6 +4,9 @@ console.log(`TFjs training started at ${Date()}`);
 
 // Create a simple model.
 (async function(){
+    
+    // --- MODEL START ---
+    
     model = tf.sequential();
     model.add(tf.layers.dense({units: 1, inputShape: [1]}));
     
@@ -19,6 +22,9 @@ console.log(`TFjs training started at ${Date()}`);
     
     // Train the model using the data.
     fitLog = await model.fit(xs, ys, {epochs: 250});
+    
+    // --- MODEL END ---
+    
     // extract the parameters
     A=model.getWeights()[0].arraySync()[0][0].toFixed(3)
     B=model.getWeights()[1].arraySync()[0].toFixed(3)

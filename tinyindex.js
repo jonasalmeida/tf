@@ -8,7 +8,8 @@ console.log(`TFjs training started at ${Date()}`);
     // --- MODEL START ---
     
     model = tf.sequential();
-    model.add(tf.layers.dense({units: 1, inputShape: [1]}));
+    model.add(tf.layers.dense({units: 2, activation:'relu', inputShape: [1]}));
+    model.add(tf.layers.dense({units: 1, activation:'linear'}));
     
     // Prepare the model for training: Specify the loss and the optimizer.
     model.compile({loss: 'meanSquaredError', optimizer: 'sgd'});
@@ -21,7 +22,7 @@ console.log(`TFjs training started at ${Date()}`);
     ys = tf.tensor2d(y, [n, 1]);
     
     // Train the model using the data.
-    fitLog = await model.fit(xs, ys, {epochs: 250});
+    fitLog = await model.fit(xs, ys, {epochs: 1000});
     
     // --- MODEL END ---
     
@@ -59,7 +60,7 @@ console.log(`TFjs training started at ${Date()}`);
             predictionTrace
         ],
         { // layout
-            title:`<b>Regression plot</b>: <i style="color:brown">y = 2x - 1</i><br><span style="font-size:medium;color:navy">A=${A} , B=${B}</span>`,
+            title:`<b>Regression plot</b>: <i style="color:brown">y = 2x - 1</i>`,
             xaxis:{
                 title:'X'
             },
